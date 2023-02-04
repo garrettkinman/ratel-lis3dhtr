@@ -4,13 +4,12 @@
 
 # LIS3DHTR 3-axis accelerometer
 
-import board
 import board / [i2c]
-import ratel_LIS3DHTR / constants
+import lis3dhtr / constants
 export i2c
 
 type
-  LIS3DHTRDevice* = object
+  Lis3dhtrDevice* = object
     bus*: I2c
     address*: uint8
 
@@ -50,12 +49,12 @@ const
   OUT_X_L: uint8 = 0x28 # starting subaddress of the output registers
 
 # TODO: change to begin(...), or is this even necessary? maybe just for some default config?
-proc start*(sensor: static[LIS3DHTRDevice]) =
+proc start*(sensor: static[Lis3dhtrDevice]) =
   ## TODO: update the docstrings
   sensor.bus.writeRegister(sensor.address, CTRL_REG1, 0b0010_0111)
 
 # TODO: don't need this long-term; will just use the methods below
-proc readRaw*(sensor: static[LIS3DHTRDevice], ax, ay, az: var int16) =
+proc readRaw*(sensor: static[Lis3dhtrDevice], ax, ay, az: var int16) =
   ## Initiates the reading of raw sensor data, storing it in the given variables
   sensor.bus.start()
   sensor.bus.send(sensor.address)
@@ -79,78 +78,78 @@ proc readRaw*(sensor: static[LIS3DHTRDevice], ax, ay, az: var int16) =
 # OLD STUFF END
 # ~~~~~~~~~~~~~
 
-proc begin*(sensor: static[LIS3DHTRDevice]) =
+proc begin*(sensor: static[Lis3dhtrDevice]) =
   # TODO
   discard
 
-proc setPowerMode*(sensor: static[LIS3DHTRDevice], mode: PowerType) = 
+proc setPowerMode*(sensor: static[Lis3dhtrDevice], mode: PowerType) = 
   # TODO
   discard
 
-proc setFullScaleRange*(sensor: static[LIS3DHTRDevice], scaleRange: ScaleType) =
+proc setFullScaleRange*(sensor: static[Lis3dhtrDevice], scaleRange: ScaleType) =
   # TODO
   discard
 
-proc setOutputDataRate*(sensor: static[LIS3DHTRDevice], odr: ODRType) =
+proc setOutputDataRate*(sensor: static[Lis3dhtrDevice], odr: ODRType) =
   # TODO
   discard
 
-proc setHighSolution*(sensor: static[LIS3DHTRDevice], enable: bool) =
+proc setHighSolution*(sensor: static[Lis3dhtrDevice], enable: bool) =
   # TODO
   discard
 
-proc available*(sensor: static[LIS3DHTRDevice]): bool =
+proc available*(sensor: static[Lis3dhtrDevice]): bool =
   # TODO
   discard
 
-proc getAcceleration*(sensor: static[LIS3DHTRDevice], x: var float32, y: var float32, z: var float32) =
+proc getAcceleration*(sensor: static[Lis3dhtrDevice], x: var float32, y: var float32, z: var float32) =
   # TODO
   discard
 
-proc getAccelerationX*(sensor: static[LIS3DHTRDevice]): float32 =
+proc getAccelerationX*(sensor: static[Lis3dhtrDevice]): float32 =
   # TODO
   discard
 
-proc getAccelerationY*(sensor: static[LIS3DHTRDevice]): float32 =
+proc getAccelerationY*(sensor: static[Lis3dhtrDevice]): float32 =
   # TODO
   discard
 
-proc getAccelerationZ*(sensor: static[LIS3DHTRDevice]): float32 =
+proc getAccelerationZ*(sensor: static[Lis3dhtrDevice]): float32 =
   # TODO
   discard
 
-proc click*(sensor: static[LIS3DHTRDevice], c: uint8, clickThresh: uint8, limit: uint8 = 10, latency: uint8 = 20, window: uint8 = 255) =
+proc click*(sensor: static[Lis3dhtrDevice], c: uint8, clickThresh: uint8, limit: uint8 = 10, latency: uint8 = 20, window: uint8 = 255) =
   # TODO
   discard
 
-proc openTemp*(sensor: static[LIS3DHTRDevice]) =
+proc openTemp*(sensor: static[Lis3dhtrDevice]) =
   # TODO
   discard
 
-proc closeTemp*(sensor: static[LIS3DHTRDevice]) =
+proc closeTemp*(sensor: static[Lis3dhtrDevice]) =
   # TODO
   discard
 
-proc readbitADC1*(sensor: static[LIS3DHTRDevice]): uint16 =
+proc readbitADC1*(sensor: static[Lis3dhtrDevice]): uint16 =
   # TODO
   discard
 
-proc readbitADC2*(sensor: static[LIS3DHTRDevice]): uint16 =
+proc readbitADC2*(sensor: static[Lis3dhtrDevice]): uint16 =
   # TODO
   discard
 
-proc readbitADC3*(sensor: static[LIS3DHTRDevice]): uint16 =
+proc readbitADC3*(sensor: static[Lis3dhtrDevice]): uint16 =
   # TODO
   discard
 
-proc getTemperature*(sensor: static[LIS3DHTRDevice]): int16 =
+proc getTemperature*(sensor: static[Lis3dhtrDevice]): int16 =
   # TODO
   discard
 
-proc getDeviceID*(sensor: static[LIS3DHTRDevice]): uint8 =
+proc getDeviceID*(sensor: static[Lis3dhtrDevice]): uint8 =
   # TODO
   discard
 
-proc reset*(sensor: static[LIS3DHTRDevice]) =
+proc reset*(sensor: static[Lis3dhtrDevice]) =
   # TODO
   discard
