@@ -1,5 +1,4 @@
 
-
 const
     # I2C ADDRESS/BITS
     LIS3DHTR_DEFAULT_ADDRESS*: uint8 = 0x18                     # 3C >> 1 = 7-bit default
