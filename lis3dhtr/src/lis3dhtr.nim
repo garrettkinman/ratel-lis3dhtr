@@ -4,7 +4,7 @@
 
 # LIS3DHTR 3-axis accelerometer
 
-import board / [i2c]
+import board / [i2c, times]
 import lis3dhtr / constants
 export i2c
 
@@ -79,8 +79,27 @@ proc readRaw*(sensor: static[Lis3dhtrDevice], ax, ay, az: var int16) =
 # ~~~~~~~~~~~~~
 
 proc begin*(sensor: static[Lis3dhtrDevice]) =
-  # TODO
-  discard
+  let config5: uint8 = LIS3DHTR_REG_TEMP_ADC_PD_ENABLED or LIS3DHTR_REG_TEMP_TEMP_EN_DISABLED
+  sensor.bus.writeRegister(sensor.address, LIS3DHTR_REG_TEMP_CFG, config5)
+  delayMs(LIS3DHTR_CONVERSIONDELAY)
+
+  let config1: uint8 = LIS3DHTR_REG_ACCEL_CTRL_REG1_LPEN_NORMAL or  # Normal Mode
+                    LIS3DHTR_REG_ACCEL_CTRL_REG1_AZEN_ENABLE or     # Acceleration Z-Axis Enabled
+                    LIS3DHTR_REG_ACCEL_CTRL_REG1_AYEN_ENABLE or     # Acceleration Y-Axis Enabled
+                    LIS3DHTR_REG_ACCEL_CTRL_REG1_AXEN_ENABLE        # Acceleration X-Axis Enabled
+  sensor.bus.writeRegister(sensor.address, LIS3DHTR_REG_ACCEL_CTRL_REG1, config1)
+  delayMs(LIS3DHTR_CONVERSIONDELAY)
+
+  let config4: uint8 = LIS3DHTR_REG_ACCEL_CTRL_REG4_BDU_NOTUPDATED or # Continuous Update
+                    LIS3DHTR_REG_ACCEL_CTRL_REG4_BLE_LSB or           # Data LSB @ lower address
+                    LIS3DHTR_REG_ACCEL_CTRL_REG4_HS_DISABLE or        # High Resolution Disable
+                    LIS3DHTR_REG_ACCEL_CTRL_REG4_ST_NORMAL or         # Normal Mode
+                    LIS3DHTR_REG_ACCEL_CTRL_REG4_SIM_4WIRE            # 4-Wire Interface
+  sensor.bus.writeRegister(sensor.address, LIS3DHTR_REG_ACCEL_CTRL_REG4, config4)
+  delayMs(LIS3DHTR_CONVERSIONDELAY)
+
+  sensor.setFullScaleRange(range16G)
+  sensor.setOutputDataRate(rate400Hz)
 
 proc setPowerMode*(sensor: static[Lis3dhtrDevice], mode: PowerType) = 
   # TODO
