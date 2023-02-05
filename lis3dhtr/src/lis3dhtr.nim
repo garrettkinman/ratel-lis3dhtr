@@ -50,12 +50,12 @@ const
   OUT_X_L: uint8 = 0x28 # starting subaddress of the output registers
 
 # TODO: change to begin(...), or is this even necessary? maybe just for some default config?
-proc start*(sensor: static[Lis3dhtrDevice]) =
+proc start*(sensor: Lis3dhtrDevice) =
   ## TODO: update the docstrings
   sensor.bus.writeRegister(sensor.address, CTRL_REG1, 0b0010_0111)
 
 # TODO: don't need this long-term; will just use the methods below
-proc readRaw*(sensor: static[Lis3dhtrDevice], ax, ay, az: var int16) =
+proc readRaw*(sensor: Lis3dhtrDevice, ax, ay, az: var int16) =
   ## Initiates the reading of raw sensor data, storing it in the given variables
   sensor.bus.start()
   sensor.bus.send(sensor.address)
@@ -79,7 +79,7 @@ proc readRaw*(sensor: static[Lis3dhtrDevice], ax, ay, az: var int16) =
 # OLD STUFF END
 # ~~~~~~~~~~~~~
 
-proc begin*(sensor: static[Lis3dhtrDevice]) =
+proc begin*(sensor: Lis3dhtrDevice) =
   ## Begins the device with a set of default settings
   ## and enables the x, y, and z axes
   let config5: uint8 =
@@ -108,11 +108,11 @@ proc begin*(sensor: static[Lis3dhtrDevice]) =
   sensor.setFullScaleRange(range16G)
   sensor.setOutputDataRate(rate400Hz)
 
-proc setPowerMode*(sensor: static[Lis3dhtrDevice], mode: PowerType) = 
+proc setPowerMode*(sensor: Lis3dhtrDevice, mode: PowerType) = 
   ## TODO
   discard
 
-proc setFullScaleRange*(sensor: static[Lis3dhtrDevice], scaleRange: ScaleType) =
+proc setFullScaleRange*(sensor: Lis3dhtrDevice, scaleRange: ScaleType) =
   ## TODO: docstring
   let data: uint8 =
                 (sensor.readRegister(LIS3DHTR_REG_ACCEL_CTRL_REG4)) and
@@ -133,7 +133,7 @@ proc setFullScaleRange*(sensor: static[Lis3dhtrDevice], scaleRange: ScaleType) =
     else:
       0 # should never happen
 
-proc setOutputDataRate*(sensor: static[Lis3dhtrDevice], odr: ODRType) =
+proc setOutputDataRate*(sensor: Lis3dhtrDevice, odr: ODRType) =
   ## TODO: docstring
   let data: uint8 =
                 (sensor.readRegister(LIS3DHTR_REG_ACCEL_CTRL_REG1)) and
@@ -142,18 +142,18 @@ proc setOutputDataRate*(sensor: static[Lis3dhtrDevice], odr: ODRType) =
   sensor.bus.writeRegister(sensor.address, LIS3DHTR_REG_ACCEL_CTRL_REG1, data)
   delayMs(LIS3DHTR_CONVERSIONDELAY)
 
-proc setHighSolution*(sensor: static[Lis3dhtrDevice], enable: bool) =
+proc setHighSolution*(sensor: Lis3dhtrDevice, enable: bool) =
   ## TODO
   discard
 
-proc available*(sensor: static[Lis3dhtrDevice]): bool =
+proc available*(sensor: Lis3dhtrDevice): bool =
   ## TODO
   let status: uint8 =
                   (sensor.readRegister(LIS3DHTR_REG_ACCEL_STATUS2)) and
                   (LIS3DHTR_REG_ACCEL_STATUS2_UPDATE_MASK)
   return status != 0 # TODO: not entirely sure if this works; need to double-check and test
 
-proc getAcceleration*(sensor: static[Lis3dhtrDevice], x, y, z: var float32) =
+proc getAcceleration*(sensor: Lis3dhtrDevice, x, y, z: var float32) =
   ## TODO
   var buf: array[8, uint8]
 
@@ -165,15 +165,16 @@ proc getAcceleration*(sensor: static[Lis3dhtrDevice], x, y, z: var float32) =
 
   sensor.bus.start()
   sensor.bus.send(sensor.address or 0x01)
-  let ax: int16 =
-              (sensor.bus.recv(false).int16) or
-              (sensor.bus.recv(false).int16 shl 8)
-  let ay: int16 = 
-              (sensor.bus.recv(false).int16) or
-              (sensor.bus.recv(false).int16 shl 8)
-  let az: int16 =
-              (sensor.bus.recv(false).int16) or
-              (sensor.bus.recv(true).int16 shl 8)
+  let
+    ax: int16 =
+            (sensor.bus.recv(false).int16) or
+            (sensor.bus.recv(false).int16 shl 8)
+    ay: int16 = 
+            (sensor.bus.recv(false).int16) or
+            (sensor.bus.recv(false).int16 shl 8)
+    az: int16 =
+            (sensor.bus.recv(false).int16) or
+            (sensor.bus.recv(true).int16 shl 8)
   sensor.bus.stop()
 
   # convert the raw values to real values
@@ -181,54 +182,54 @@ proc getAcceleration*(sensor: static[Lis3dhtrDevice], x, y, z: var float32) =
   y = float(ay / sensor.accRange)
   z = float(az / sensor.accRange)
 
-proc getAccelerationX*(sensor: static[Lis3dhtrDevice]): float32 =
+proc getAccelerationX*(sensor: Lis3dhtrDevice): float32 =
   ## TODO
   discard
 
-proc getAccelerationY*(sensor: static[Lis3dhtrDevice]): float32 =
+proc getAccelerationY*(sensor: Lis3dhtrDevice): float32 =
   ## TODO
   discard
 
-proc getAccelerationZ*(sensor: static[Lis3dhtrDevice]): float32 =
+proc getAccelerationZ*(sensor: Lis3dhtrDevice): float32 =
   ## TODO
   discard
 
-proc click*(sensor: static[Lis3dhtrDevice], c: uint8, clickThresh: uint8, limit: uint8 = 10, latency: uint8 = 20, window: uint8 = 255) =
+proc click*(sensor: Lis3dhtrDevice, c: uint8, clickThresh: uint8, limit: uint8 = 10, latency: uint8 = 20, window: uint8 = 255) =
   ## TODO
   discard
 
-proc openTemp*(sensor: static[Lis3dhtrDevice]) =
+proc openTemp*(sensor: Lis3dhtrDevice) =
   ## TODO
   discard
 
-proc closeTemp*(sensor: static[Lis3dhtrDevice]) =
+proc closeTemp*(sensor: Lis3dhtrDevice) =
   ## TODO
   discard
 
-proc readbitADC1*(sensor: static[Lis3dhtrDevice]): uint16 =
+proc readbitADC1*(sensor: Lis3dhtrDevice): uint16 =
   ## TODO
   discard
 
-proc readbitADC2*(sensor: static[Lis3dhtrDevice]): uint16 =
+proc readbitADC2*(sensor: Lis3dhtrDevice): uint16 =
   ## TODO
   discard
 
-proc readbitADC3*(sensor: static[Lis3dhtrDevice]): uint16 =
+proc readbitADC3*(sensor: Lis3dhtrDevice): uint16 =
   ## TODO
   discard
 
-proc getTemperature*(sensor: static[Lis3dhtrDevice]): int16 =
+proc getTemperature*(sensor: Lis3dhtrDevice): int16 =
   ## TODO
   discard
 
-proc isConnection*(sensor: static[Lis3dhtrDevice]): bool =
+proc isConnection*(sensor: Lis3dhtrDevice): bool =
   ## TODO
   discard
 
-proc getDeviceID*(sensor: static[Lis3dhtrDevice]): uint8 =
+proc getDeviceID*(sensor: Lis3dhtrDevice): uint8 =
   ## TODO
   discard
 
-proc reset*(sensor: static[Lis3dhtrDevice]) =
+proc reset*(sensor: Lis3dhtrDevice) =
   ## TODO
   discard
