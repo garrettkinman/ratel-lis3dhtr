@@ -109,8 +109,13 @@ proc begin*(sensor: Lis3dhtrDevice) =
   sensor.setOutputDataRate(rate400Hz)
 
 proc setPowerMode*(sensor: Lis3dhtrDevice, mode: PowerType) = 
-  ## TODO
-  discard
+  ## TODO: docstring
+  let data: uint8 =
+                (sensor.bus.readRegister(LIS3DHTR_REG_ACCEL_CTRL_REG1)) and
+                (not LIS3DHTR_REG_ACCEL_CTRL_REG1_LPEN_MASK) or
+                (mode.ord())
+  sensor.bus.writeRegister(sensor.address, LIS3DHTR_REG_ACCEL_CTRL_REG1, data)
+  delayMs(LIS3DHTR_CONVERSIONDELAY)
 
 proc setFullScaleRange*(sensor: Lis3dhtrDevice, scaleRange: ScaleType) =
   ## TODO: docstring
@@ -143,19 +148,31 @@ proc setOutputDataRate*(sensor: Lis3dhtrDevice, odr: ODRType) =
   delayMs(LIS3DHTR_CONVERSIONDELAY)
 
 proc setHighSolution*(sensor: Lis3dhtrDevice, enable: bool) =
-  ## TODO
-  discard
+  ## TODO: docstring
+  var data: uint8 = sensor.bus.readRegister(LIS3DHTR_REG_ACCEL_CTRL_REG4)
+  uint8_t data = 0;
+  data = readRegister(LIS3DHTR_REG_ACCEL_CTRL_REG4);
+
+  if enable:
+    data =
+        (data) or
+        (LIS3DHTR_REG_ACCEL_CTRL_REG4_HS_ENABLE)
+  else:
+    data =
+        (data) and
+        (not LIS3DHTR_REG_ACCEL_CTRL_REG4_HS_ENABLE)
+  
+  sensor.bus.writeRegister(sensor.address, LIS3DHTR_REG_ACCEL_CTRL_REG4, data);
 
 proc available*(sensor: Lis3dhtrDevice): bool =
-  ## TODO
+  ## TODO: docstring
   let status: uint8 =
                   (sensor.bus.readRegister(LIS3DHTR_REG_ACCEL_STATUS2)) and
                   (LIS3DHTR_REG_ACCEL_STATUS2_UPDATE_MASK)
-  return status != 0 # TODO: not entirely sure if this works; need to double-check and test
+  result = status.bool # TODO: double-check/test if this actuall works
 
 proc getAcceleration*(sensor: Lis3dhtrDevice, x, y, z: var float32) =
   ## TODO
-
   # read raw sensor data
   sensor.bus.start()
   sensor.bus.send(sensor.address)
@@ -183,7 +200,6 @@ proc getAcceleration*(sensor: Lis3dhtrDevice, x, y, z: var float32) =
 
 proc getAccelerationX*(sensor: Lis3dhtrDevice): float32 =
   ## TODO
-
   # read raw sensor data
   sensor.bus.start()
   sensor.bus.send(sensor.address)
@@ -202,7 +218,6 @@ proc getAccelerationX*(sensor: Lis3dhtrDevice): float32 =
 
 proc getAccelerationY*(sensor: Lis3dhtrDevice): float32 =
   ## TODO
-  
   # read raw sensor data
   sensor.bus.start()
   sensor.bus.send(sensor.address)
@@ -221,7 +236,6 @@ proc getAccelerationY*(sensor: Lis3dhtrDevice): float32 =
 
 proc getAccelerationZ*(sensor: Lis3dhtrDevice): float32 =
   ## TODO
-  
   # read raw sensor data
   sensor.bus.start()
   sensor.bus.send(sensor.address)
