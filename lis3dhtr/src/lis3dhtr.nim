@@ -169,7 +169,7 @@ proc available*(sensor: Lis3dhtrDevice): bool =
   let status: uint8 =
                   (sensor.bus.readRegister(LIS3DHTR_REG_ACCEL_STATUS2)) and
                   (LIS3DHTR_REG_ACCEL_STATUS2_UPDATE_MASK)
-  result = status.bool # TODO: double-check/test if this actuall works
+  return status.bool # TODO: double-check/test if this actually works
 
 proc getAcceleration*(sensor: Lis3dhtrDevice, x, y, z: var float32) =
   ## TODO
@@ -214,7 +214,7 @@ proc getAccelerationX*(sensor: Lis3dhtrDevice): float32 =
   sensor.bus.stop()
 
   # convert the raw values to real values
-  result = float(ax / sensor.accRange)
+  return float(ax / sensor.accRange)
 
 proc getAccelerationY*(sensor: Lis3dhtrDevice): float32 =
   ## TODO
@@ -232,7 +232,7 @@ proc getAccelerationY*(sensor: Lis3dhtrDevice): float32 =
   sensor.bus.stop()
 
   # convert the raw values to real values
-  result = float(ay / sensor.accRange)
+  return float(ay / sensor.accRange)
 
 proc getAccelerationZ*(sensor: Lis3dhtrDevice): float32 =
   ## TODO
@@ -250,11 +250,30 @@ proc getAccelerationZ*(sensor: Lis3dhtrDevice): float32 =
   sensor.bus.stop()
 
   # convert the raw values to real values
-  result = float(az / sensor.accRange)
+  return float(az / sensor.accRange)
 
 proc click*(sensor: Lis3dhtrDevice, c: uint8, clickThresh: uint8, limit: uint8 = 10, latency: uint8 = 20, window: uint8 = 255) =
-  ## TODO
-  discard
+  ## TODO: docstring
+  if (c == 0):
+    let r: uint8 =
+                (sensor.bus.readRegister(sensor.address, LIS3DHTR_REG_ACCEL_CTRL_REG3)) and
+                (not 0x80)  # turn off I1_CLICK
+    sensor.bus.writeRegister(sensor.address, LIS3DHTR_REG_ACCEL_CTRL_REG3, r)
+    sensor.bus.writeRegister(sensor.address, LIS3DHTR_REG_ACCEL_CLICK_CFG, 0x00)
+    return
+  
+  sensor.bus.writeRegister(sensor.address, LIS3DHTR_REG_ACCEL_CTRL_REG3, 0x80)
+  sensor.bus.writeRegister(sensor.address, LIS3DHTR_REG_ACCEL_CTRL_REG5, 0x08)
+
+  if (c == 1):
+    sensor.bus.writeRegister(sensor.address, LIS3DHTR_REG_ACCEL_CLICK_CFG, 0x15)
+  elif (c == 2):
+    sensor.bus.writeRegister(sensor.address, LIS3DHTR_REG_ACCEL_CLICK_CFG, 0x2A)
+  
+  sensor.bus.writeRegister(sensor.address, LIS3DHTR_REG_ACCEL_CLICK_THS, click_thresh);
+  sensor.bus.writeRegister(sensor.address, LIS3DHTR_REG_ACCEL_TIME_LIMIT, limit);
+  sensor.bus.writeRegister(sensor.address, LIS3DHTR_REG_ACCEL_TIME_LATENCY, latency);
+  sensor.bus.writeRegister(sensor.address, LIS3DHTR_REG_ACCEL_TIME_WINDOW, window);
 
 proc openTemp*(sensor: Lis3dhtrDevice) =
   ## TODO
@@ -282,11 +301,11 @@ proc getTemperature*(sensor: Lis3dhtrDevice): int16 =
 
 proc isConnection*(sensor: Lis3dhtrDevice): bool =
   ## TODO
-  result = (sensor.getDeviceID() == 0x33)
+  return (sensor.getDeviceID() == 0x33)
 
 proc getDeviceID*(sensor: Lis3dhtrDevice): uint8 =
   ## TODO
-  result = sensor.bus.readRegister(LIS3DHTR_REG_ACCEL_WHO_AM_I)
+  return sensor.bus.readRegister(LIS3DHTR_REG_ACCEL_WHO_AM_I)
 
 proc reset*(sensor: Lis3dhtrDevice) =
   ## TODO
