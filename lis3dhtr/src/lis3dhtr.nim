@@ -12,6 +12,7 @@ type
   Lis3dhtrDevice* = object
     bus*: I2c
     address*: uint8
+    accRange: int16
 
   # power mode
   PowerType* = enum
@@ -79,22 +80,28 @@ proc readRaw*(sensor: static[Lis3dhtrDevice], ax, ay, az: var int16) =
 # ~~~~~~~~~~~~~
 
 proc begin*(sensor: static[Lis3dhtrDevice]) =
-  let config5: uint8 = LIS3DHTR_REG_TEMP_ADC_PD_ENABLED or LIS3DHTR_REG_TEMP_TEMP_EN_DISABLED
+  ## Begins the device with a set of default settings
+  ## and enables the x, y, and z axes
+  let config5: uint8 =
+                    (LIS3DHTR_REG_TEMP_ADC_PD_ENABLED) or
+                    (LIS3DHTR_REG_TEMP_TEMP_EN_DISABLED)
   sensor.bus.writeRegister(sensor.address, LIS3DHTR_REG_TEMP_CFG, config5)
   delayMs(LIS3DHTR_CONVERSIONDELAY)
 
-  let config1: uint8 = LIS3DHTR_REG_ACCEL_CTRL_REG1_LPEN_NORMAL or  # Normal Mode
-                    LIS3DHTR_REG_ACCEL_CTRL_REG1_AZEN_ENABLE or     # Acceleration Z-Axis Enabled
-                    LIS3DHTR_REG_ACCEL_CTRL_REG1_AYEN_ENABLE or     # Acceleration Y-Axis Enabled
-                    LIS3DHTR_REG_ACCEL_CTRL_REG1_AXEN_ENABLE        # Acceleration X-Axis Enabled
+  let config1: uint8 =
+                    (LIS3DHTR_REG_ACCEL_CTRL_REG1_LPEN_NORMAL) or     # Normal Mode
+                    (LIS3DHTR_REG_ACCEL_CTRL_REG1_AZEN_ENABLE) or     # Acceleration Z-Axis Enabled
+                    (LIS3DHTR_REG_ACCEL_CTRL_REG1_AYEN_ENABLE) or     # Acceleration Y-Axis Enabled
+                    (LIS3DHTR_REG_ACCEL_CTRL_REG1_AXEN_ENABLE)        # Acceleration X-Axis Enabled
   sensor.bus.writeRegister(sensor.address, LIS3DHTR_REG_ACCEL_CTRL_REG1, config1)
   delayMs(LIS3DHTR_CONVERSIONDELAY)
 
-  let config4: uint8 = LIS3DHTR_REG_ACCEL_CTRL_REG4_BDU_NOTUPDATED or # Continuous Update
-                    LIS3DHTR_REG_ACCEL_CTRL_REG4_BLE_LSB or           # Data LSB @ lower address
-                    LIS3DHTR_REG_ACCEL_CTRL_REG4_HS_DISABLE or        # High Resolution Disable
-                    LIS3DHTR_REG_ACCEL_CTRL_REG4_ST_NORMAL or         # Normal Mode
-                    LIS3DHTR_REG_ACCEL_CTRL_REG4_SIM_4WIRE            # 4-Wire Interface
+  let config4: uint8 =
+                    (LIS3DHTR_REG_ACCEL_CTRL_REG4_BDU_NOTUPDATED) or  # Continuous Update
+                    (LIS3DHTR_REG_ACCEL_CTRL_REG4_BLE_LSB) or         # Data LSB @ lower address
+                    (LIS3DHTR_REG_ACCEL_CTRL_REG4_HS_DISABLE) or      # High Resolution Disable
+                    (LIS3DHTR_REG_ACCEL_CTRL_REG4_ST_NORMAL) or       # Normal Mode
+                    (LIS3DHTR_REG_ACCEL_CTRL_REG4_SIM_4WIRE)          # 4-Wire Interface
   sensor.bus.writeRegister(sensor.address, LIS3DHTR_REG_ACCEL_CTRL_REG4, config4)
   delayMs(LIS3DHTR_CONVERSIONDELAY)
 
@@ -106,12 +113,34 @@ proc setPowerMode*(sensor: static[Lis3dhtrDevice], mode: PowerType) =
   discard
 
 proc setFullScaleRange*(sensor: static[Lis3dhtrDevice], scaleRange: ScaleType) =
-  # TODO
-  discard
+  ## TODO: docstring
+  let data: uint8 =
+                (sensor.readRegister(LIS3DHTR_REG_ACCEL_CTRL_REG4)) and
+                (not LIS3DHTR_REG_ACCEL_CTRL_REG4_FS_MASK) or
+                (scaleRange.ord())
+  sensor.bus.writeRegister(sensor.address, LIS3DHTR_REG_ACCEL_CTRL_REG4, data)
+  delayMs(LIS3DHTR_CONVERSIONDELAY)
+
+  sensor.accRange = case scaleRange:
+    of range16G:
+      1280
+    of range8G:
+      3968
+    of range4G:
+      7282
+    of range2G:
+      16000
+    else:
+      0 # should never happen
 
 proc setOutputDataRate*(sensor: static[Lis3dhtrDevice], odr: ODRType) =
-  # TODO
-  discard
+  ## TODO: docstring
+  let data: uint8 =
+                (sensor.readRegister(LIS3DHTR_REG_ACCEL_CTRL_REG1)) and
+                (not LIS3DHTR_REG_ACCEL_CTRL_REG1_AODR_MASK) or
+                (odr.ord())
+  sensor.bus.writeRegister(sensor.address, LIS3DHTR_REG_ACCEL_CTRL_REG1, data)
+  delayMs(LIS3DHTR_CONVERSIONDELAY)
 
 proc setHighSolution*(sensor: static[Lis3dhtrDevice], enable: bool) =
   # TODO
