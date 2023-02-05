@@ -109,7 +109,7 @@ proc begin*(sensor: static[Lis3dhtrDevice]) =
   sensor.setOutputDataRate(rate400Hz)
 
 proc setPowerMode*(sensor: static[Lis3dhtrDevice], mode: PowerType) = 
-  # TODO
+  ## TODO
   discard
 
 proc setFullScaleRange*(sensor: static[Lis3dhtrDevice], scaleRange: ScaleType) =
@@ -143,61 +143,92 @@ proc setOutputDataRate*(sensor: static[Lis3dhtrDevice], odr: ODRType) =
   delayMs(LIS3DHTR_CONVERSIONDELAY)
 
 proc setHighSolution*(sensor: static[Lis3dhtrDevice], enable: bool) =
-  # TODO
+  ## TODO
   discard
 
 proc available*(sensor: static[Lis3dhtrDevice]): bool =
-  # TODO
-  discard
+  ## TODO
+  let status: uint8 =
+                  (sensor.readRegister(LIS3DHTR_REG_ACCEL_STATUS2)) and
+                  (LIS3DHTR_REG_ACCEL_STATUS2_UPDATE_MASK)
+  return status != 0 # TODO: not entirely sure if this works; need to double-check and test
 
-proc getAcceleration*(sensor: static[Lis3dhtrDevice], x: var float32, y: var float32, z: var float32) =
-  # TODO
-  discard
+proc getAcceleration*(sensor: static[Lis3dhtrDevice], x, y, z: var float32) =
+  ## TODO
+  var buf: array[8, uint8]
+
+  # read raw sensor data
+  sensor.bus.start()
+  sensor.bus.send(sensor.address)
+  sensor.bus.send(LIS3DHTR_REG_ACCEL_OUT_X_L or 0x80) # set MSb of subaddress to 1 to read multiple
+  sensor.bus.stop()
+
+  sensor.bus.start()
+  sensor.bus.send(sensor.address or 0x01)
+  let ax: int16 =
+              (sensor.bus.recv(false).int16) or
+              (sensor.bus.recv(false).int16 shl 8)
+  let ay: int16 = 
+              (sensor.bus.recv(false).int16) or
+              (sensor.bus.recv(false).int16 shl 8)
+  let az: int16 =
+              (sensor.bus.recv(false).int16) or
+              (sensor.bus.recv(true).int16 shl 8)
+  sensor.bus.stop()
+
+  # convert the raw values to real values
+  x = float(ax / sensor.accRange)
+  y = float(ay / sensor.accRange)
+  z = float(az / sensor.accRange)
 
 proc getAccelerationX*(sensor: static[Lis3dhtrDevice]): float32 =
-  # TODO
+  ## TODO
   discard
 
 proc getAccelerationY*(sensor: static[Lis3dhtrDevice]): float32 =
-  # TODO
+  ## TODO
   discard
 
 proc getAccelerationZ*(sensor: static[Lis3dhtrDevice]): float32 =
-  # TODO
+  ## TODO
   discard
 
 proc click*(sensor: static[Lis3dhtrDevice], c: uint8, clickThresh: uint8, limit: uint8 = 10, latency: uint8 = 20, window: uint8 = 255) =
-  # TODO
+  ## TODO
   discard
 
 proc openTemp*(sensor: static[Lis3dhtrDevice]) =
-  # TODO
+  ## TODO
   discard
 
 proc closeTemp*(sensor: static[Lis3dhtrDevice]) =
-  # TODO
+  ## TODO
   discard
 
 proc readbitADC1*(sensor: static[Lis3dhtrDevice]): uint16 =
-  # TODO
+  ## TODO
   discard
 
 proc readbitADC2*(sensor: static[Lis3dhtrDevice]): uint16 =
-  # TODO
+  ## TODO
   discard
 
 proc readbitADC3*(sensor: static[Lis3dhtrDevice]): uint16 =
-  # TODO
+  ## TODO
   discard
 
 proc getTemperature*(sensor: static[Lis3dhtrDevice]): int16 =
-  # TODO
+  ## TODO
+  discard
+
+proc isConnection*(sensor: static[Lis3dhtrDevice]): bool =
+  ## TODO
   discard
 
 proc getDeviceID*(sensor: static[Lis3dhtrDevice]): uint8 =
-  # TODO
+  ## TODO
   discard
 
 proc reset*(sensor: static[Lis3dhtrDevice]) =
-  # TODO
+  ## TODO
   discard
