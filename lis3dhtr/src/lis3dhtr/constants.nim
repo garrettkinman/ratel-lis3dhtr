@@ -7,6 +7,14 @@ const
     # CONVERSION DELAY (in mS)
     LIS3DHTR_CONVERSIONDELAY* = 100                             # TODO: type?
 
+    # ADC REGISTERS
+    LIS3DHTR_REG_OUT_ADC1_L*: uint8 = 0x08                      # Auxiliary 10-bit ADC Channel 1 Conversion, Low Register
+    LIS3DHTR_REG_OUT_ADC1_H*: uint8 = 0x09                      # Auxiliary 10-bit ADC Channel 1 Conversion, High Register
+    LIS3DHTR_REG_OUT_ADC2_L*: uint8 = 0x0A                      # Auxiliary 10-bit ADC Channel 2 Conversion, Low Register
+    LIS3DHTR_REG_OUT_ADC2_H*: uint8 = 0x0B                      # Auxiliary 10-bit ADC Channel 2 Conversion, High Register
+    LIS3DHTR_REG_OUT_ADC3_L*: uint8 = 0x0C                      # Auxiliary 10-bit ADC Channel 3 Conversion, Low Register
+    LIS3DHTR_REG_OUT_ADC3_H*: uint8 = 0x0D                      # Auxiliary 10-bit ADC Channel 3 Conversion, High Register
+
     # ACCELEROMETER REGISTERS
     LIS3DHTR_REG_ACCEL_STATUS*: uint8 = 0x07                    # Status Register
     LIS3DHTR_REG_ACCEL_OUT_ADC1_L*: uint8 = 0x28                # 1-Axis Acceleration Data Low Register

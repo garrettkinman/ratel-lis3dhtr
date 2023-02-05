@@ -172,7 +172,7 @@ proc available*(sensor: Lis3dhtrDevice): bool =
   return status.bool # TODO: double-check/test if this actually works
 
 proc getAcceleration*(sensor: Lis3dhtrDevice, x, y, z: var float32) =
-  ## TODO
+  ## TODO: docstring
   # read raw sensor data
   sensor.bus.start()
   sensor.bus.send(sensor.address)
@@ -199,7 +199,7 @@ proc getAcceleration*(sensor: Lis3dhtrDevice, x, y, z: var float32) =
   z = float(az / sensor.accRange)
 
 proc getAccelerationX*(sensor: Lis3dhtrDevice): float32 =
-  ## TODO
+  ## TODO: docstring
   # read raw sensor data
   sensor.bus.start()
   sensor.bus.send(sensor.address)
@@ -217,7 +217,7 @@ proc getAccelerationX*(sensor: Lis3dhtrDevice): float32 =
   return float(ax / sensor.accRange)
 
 proc getAccelerationY*(sensor: Lis3dhtrDevice): float32 =
-  ## TODO
+  ## TODO: docstring
   # read raw sensor data
   sensor.bus.start()
   sensor.bus.send(sensor.address)
@@ -235,7 +235,7 @@ proc getAccelerationY*(sensor: Lis3dhtrDevice): float32 =
   return float(ay / sensor.accRange)
 
 proc getAccelerationZ*(sensor: Lis3dhtrDevice): float32 =
-  ## TODO
+  ## TODO: docstring
   # read raw sensor data
   sensor.bus.start()
   sensor.bus.send(sensor.address)
@@ -276,37 +276,102 @@ proc click*(sensor: Lis3dhtrDevice, c: uint8, clickThresh: uint8, limit: uint8 =
   sensor.bus.writeRegister(sensor.address, LIS3DHTR_REG_ACCEL_TIME_WINDOW, window);
 
 proc openTemp*(sensor: Lis3dhtrDevice) =
-  ## TODO
-  discard
+  ## TODO: docstring
+  let config5: uint8 =
+                    (LIS3DHTR_REG_TEMP_ADC_PD_ENABLED) or
+                    (LIS3DHTR_REG_TEMP_TEMP_EN_ENABLED)
+  sensor.bus.writeRegister(sensor.address, LIS3DHTR_REG_TEMP_CFG, config5)
+  delayMs(LIS3DHTR_CONVERSIONDELAY)
 
 proc closeTemp*(sensor: Lis3dhtrDevice) =
-  ## TODO
-  discard
+  ## TODO: docstring
+  let config5: uint8 =
+                    (LIS3DHTR_REG_TEMP_ADC_PD_ENABLED) or
+                    (LIS3DHTR_REG_TEMP_TEMP_EN_DISABLED)
+  sensor.bus.writeRegister(sensor.address, LIS3DHTR_REG_TEMP_CFG, config5)
+  delayMs(LIS3DHTR_CONVERSIONDELAY)
 
 proc readbitADC1*(sensor: Lis3dhtrDevice): uint16 =
-  ## TODO
-  discard
+  ## TODO: docstring
+  # read raw sensor data
+  sensor.bus.start()
+  sensor.bus.send(sensor.address)
+  sensor.bus.send(LIS3DHTR_REG_OUT_ADC1_L or 0x80) # set MSb of subaddress to 1 to read multiple
+  sensor.bus.stop()
+
+  sensor.bus.start()
+  sensor.bus.send(sensor.address or 0x01)
+  let adc1: int16 =
+              (sensor.bus.recv(false).int16) or
+              (sensor.bus.recv(true).int16 shl 8)
+  sensor.bus.stop()
+
+  # bit-wise fuckery I do not yet understand
+  return ((0 - adc1) + 32768) shr 6
 
 proc readbitADC2*(sensor: Lis3dhtrDevice): uint16 =
-  ## TODO
-  discard
+  ## TODO: docstring
+  # read raw sensor data
+  sensor.bus.start()
+  sensor.bus.send(sensor.address)
+  sensor.bus.send(LIS3DHTR_REG_OUT_ADC2_L or 0x80) # set MSb of subaddress to 1 to read multiple
+  sensor.bus.stop()
+
+  sensor.bus.start()
+  sensor.bus.send(sensor.address or 0x01)
+  let adc2: int16 =
+              (sensor.bus.recv(false).int16) or
+              (sensor.bus.recv(true).int16 shl 8)
+  sensor.bus.stop()
+
+  # bit-wise fuckery I do not yet understand
+  return ((0 - adc2) + 32768) shr 6
 
 proc readbitADC3*(sensor: Lis3dhtrDevice): uint16 =
-  ## TODO
-  discard
+  ## TODO: docstring
+  # read raw sensor data
+  sensor.bus.start()
+  sensor.bus.send(sensor.address)
+  sensor.bus.send(LIS3DHTR_REG_OUT_ADC3_L or 0x80) # set MSb of subaddress to 1 to read multiple
+  sensor.bus.stop()
+
+  sensor.bus.start()
+  sensor.bus.send(sensor.address or 0x01)
+  let adc3: int16 =
+              (sensor.bus.recv(false).int16) or
+              (sensor.bus.recv(true).int16 shl 8)
+  sensor.bus.stop()
+
+  # bit-wise fuckery I do not yet understand
+  return ((0 - adc3) + 32768) shr 6
 
 proc getTemperature*(sensor: Lis3dhtrDevice): int16 =
-  ## TODO
-  discard
+  ## TODO: docstring
+  # read raw sensor data
+  sensor.bus.start()
+  sensor.bus.send(sensor.address)
+  sensor.bus.send(LIS3DHTR_REG_OUT_ADC3_L or 0x80) # set MSb of subaddress to 1 to read multiple
+  sensor.bus.stop()
+
+  sensor.bus.start()
+  sensor.bus.send(sensor.address or 0x01)
+  let temp: int16 =
+              (sensor.bus.recv(false).int16) or
+              (sensor.bus.recv(true).int16 shl 8)
+  sensor.bus.stop()
+
+  # convert to actual value
+  return (temp / 256) + 25
 
 proc isConnection*(sensor: Lis3dhtrDevice): bool =
-  ## TODO
+  ## TODO: docstring
   return (sensor.getDeviceID() == 0x33)
 
 proc getDeviceID*(sensor: Lis3dhtrDevice): uint8 =
-  ## TODO
+  ## TODO: docstring
   return sensor.bus.readRegister(LIS3DHTR_REG_ACCEL_WHO_AM_I)
 
 proc reset*(sensor: Lis3dhtrDevice) =
-  ## TODO
+  ## TODO: docstring
+  ## doesn't seem to be implemented in the original arduino library
   discard
