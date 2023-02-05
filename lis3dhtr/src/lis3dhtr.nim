@@ -155,7 +155,6 @@ proc available*(sensor: Lis3dhtrDevice): bool =
 
 proc getAcceleration*(sensor: Lis3dhtrDevice, x, y, z: var float32) =
   ## TODO
-  var buf: array[8, uint8]
 
   # read raw sensor data
   sensor.bus.start()
@@ -184,15 +183,60 @@ proc getAcceleration*(sensor: Lis3dhtrDevice, x, y, z: var float32) =
 
 proc getAccelerationX*(sensor: Lis3dhtrDevice): float32 =
   ## TODO
-  discard
+
+  # read raw sensor data
+  sensor.bus.start()
+  sensor.bus.send(sensor.address)
+  sensor.bus.send(LIS3DHTR_REG_ACCEL_OUT_X_L or 0x80) # set MSb of subaddress to 1 to read multiple
+  sensor.bus.stop()
+
+  sensor.bus.start()
+  sensor.bus.send(sensor.address or 0x01)
+  let ax: int16 =
+              (sensor.bus.recv(false).int16) or
+              (sensor.bus.recv(true).int16 shl 8)
+  sensor.bus.stop()
+
+  # convert the raw values to real values
+  result = float(ax / sensor.accRange)
 
 proc getAccelerationY*(sensor: Lis3dhtrDevice): float32 =
   ## TODO
-  discard
+  
+  # read raw sensor data
+  sensor.bus.start()
+  sensor.bus.send(sensor.address)
+  sensor.bus.send(LIS3DHTR_REG_ACCEL_OUT_Y_L or 0x80) # set MSb of subaddress to 1 to read multiple
+  sensor.bus.stop()
+
+  sensor.bus.start()
+  sensor.bus.send(sensor.address or 0x01)
+  let ay: int16 =
+              (sensor.bus.recv(false).int16) or
+              (sensor.bus.recv(true).int16 shl 8)
+  sensor.bus.stop()
+
+  # convert the raw values to real values
+  result = float(ay / sensor.accRange)
 
 proc getAccelerationZ*(sensor: Lis3dhtrDevice): float32 =
   ## TODO
-  discard
+  
+  # read raw sensor data
+  sensor.bus.start()
+  sensor.bus.send(sensor.address)
+  sensor.bus.send(LIS3DHTR_REG_ACCEL_OUT_Z_L or 0x80) # set MSb of subaddress to 1 to read multiple
+  sensor.bus.stop()
+
+  sensor.bus.start()
+  sensor.bus.send(sensor.address or 0x01)
+  let az: int16 =
+              (sensor.bus.recv(false).int16) or
+              (sensor.bus.recv(true).int16 shl 8)
+  sensor.bus.stop()
+
+  # convert the raw values to real values
+  result = float(az / sensor.accRange)
 
 proc click*(sensor: Lis3dhtrDevice, c: uint8, clickThresh: uint8, limit: uint8 = 10, latency: uint8 = 20, window: uint8 = 255) =
   ## TODO
