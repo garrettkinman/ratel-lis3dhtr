@@ -7,6 +7,8 @@ Serial.init(9600.Hz)
 Led.output()
 I2cBus.init()
 
+# TODO: test this as an imported library, then test it with the new code
+
 const
   LIS3DHTR_ADDR: uint8 = 0x19 # slave address of the accelerometer
   sensor = LIS3DHTRDevice(bus: I2cBus, address: LIS3DHTR_ADDR shl 1)
