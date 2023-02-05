@@ -115,7 +115,7 @@ proc setPowerMode*(sensor: Lis3dhtrDevice, mode: PowerType) =
 proc setFullScaleRange*(sensor: Lis3dhtrDevice, scaleRange: ScaleType) =
   ## TODO: docstring
   let data: uint8 =
-                (sensor.readRegister(LIS3DHTR_REG_ACCEL_CTRL_REG4)) and
+                (sensor.bus.readRegister(LIS3DHTR_REG_ACCEL_CTRL_REG4)) and
                 (not LIS3DHTR_REG_ACCEL_CTRL_REG4_FS_MASK) or
                 (scaleRange.ord())
   sensor.bus.writeRegister(sensor.address, LIS3DHTR_REG_ACCEL_CTRL_REG4, data)
@@ -136,7 +136,7 @@ proc setFullScaleRange*(sensor: Lis3dhtrDevice, scaleRange: ScaleType) =
 proc setOutputDataRate*(sensor: Lis3dhtrDevice, odr: ODRType) =
   ## TODO: docstring
   let data: uint8 =
-                (sensor.readRegister(LIS3DHTR_REG_ACCEL_CTRL_REG1)) and
+                (sensor.bus.readRegister(LIS3DHTR_REG_ACCEL_CTRL_REG1)) and
                 (not LIS3DHTR_REG_ACCEL_CTRL_REG1_AODR_MASK) or
                 (odr.ord())
   sensor.bus.writeRegister(sensor.address, LIS3DHTR_REG_ACCEL_CTRL_REG1, data)
@@ -149,7 +149,7 @@ proc setHighSolution*(sensor: Lis3dhtrDevice, enable: bool) =
 proc available*(sensor: Lis3dhtrDevice): bool =
   ## TODO
   let status: uint8 =
-                  (sensor.readRegister(LIS3DHTR_REG_ACCEL_STATUS2)) and
+                  (sensor.bus.readRegister(LIS3DHTR_REG_ACCEL_STATUS2)) and
                   (LIS3DHTR_REG_ACCEL_STATUS2_UPDATE_MASK)
   return status != 0 # TODO: not entirely sure if this works; need to double-check and test
 
@@ -268,11 +268,11 @@ proc getTemperature*(sensor: Lis3dhtrDevice): int16 =
 
 proc isConnection*(sensor: Lis3dhtrDevice): bool =
   ## TODO
-  discard
+  result = (sensor.getDeviceID() == 0x33)
 
 proc getDeviceID*(sensor: Lis3dhtrDevice): uint8 =
   ## TODO
-  discard
+  result = sensor.bus.readRegister(LIS3DHTR_REG_ACCEL_WHO_AM_I)
 
 proc reset*(sensor: Lis3dhtrDevice) =
   ## TODO
