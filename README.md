@@ -41,3 +41,8 @@ while true:
   Led.low()
   delayMs(1000)
 ```
+
+# Notes
+- Not all methods are fully tested, as the purpose of this library was mostly an exercise in recreating an existing C sensor library in Nim for Ratel (if anyone does test them and finds issues, I'm happy to merge a PR or try to make minor fixes)
+- Not all docstrings are completed because I simply don't understand what all of them do well enough (if anyone desires to add them, I'm happy to merge a PR)
+- The original Arduino library also allows SPI, but Ratel does not support SPI at the time of writing this

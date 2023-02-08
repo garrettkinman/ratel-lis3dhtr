@@ -75,7 +75,8 @@ proc begin*(sensor: static[Lis3dhtrDevice]) =
   sensor.setOutputDataRate(rate400Hz)
 
 proc getRawAcceleration*(sensor: static[Lis3dhtrDevice], ax, ay, az: var int16) =
-  ## TODO: docstring
+  ## Retrieves raw acceleration values (before conversion to float),
+  ## which may be helpful for systems without a floating point unit
   # read raw sensor data
   sensor.bus.start()
   sensor.bus.send(sensor.address)
@@ -97,7 +98,7 @@ proc getRawAcceleration*(sensor: static[Lis3dhtrDevice], ax, ay, az: var int16) 
   sensor.bus.stop()
 
 proc setPowerMode*(sensor: static[Lis3dhtrDevice], mode: PowerType) = 
-  ## TODO: docstring
+  ## Sets the power mode (low-power or normal)
   let data: uint8 =
                 (sensor.bus.readRegister(sensor.address, LIS3DHTR_REG_ACCEL_CTRL_REG1)) and
                 (not LIS3DHTR_REG_ACCEL_CTRL_REG1_LPEN_MASK) or
@@ -106,7 +107,7 @@ proc setPowerMode*(sensor: static[Lis3dhtrDevice], mode: PowerType) =
   delayMs(LIS3DHTR_CONVERSIONDELAY)
 
 proc setFullScaleRange*(sensor: static[Lis3dhtrDevice], scaleRange: ScaleType) =
-  ## TODO: docstring
+  ## Sets the scaling range of accelerometer sensing
   let data: uint8 =
                 (sensor.bus.readRegister(sensor.address, LIS3DHTR_REG_ACCEL_CTRL_REG4)) and
                 (not LIS3DHTR_REG_ACCEL_CTRL_REG4_FS_MASK) or
@@ -125,7 +126,7 @@ proc setFullScaleRange*(sensor: static[Lis3dhtrDevice], scaleRange: ScaleType) =
       16000
 
 proc setOutputDataRate*(sensor: static[Lis3dhtrDevice], odr: ODRType) =
-  ## TODO: docstring
+  ## Sets the output data rate (in Hz)
   let data: uint8 =
                 (sensor.bus.readRegister(sensor.address, LIS3DHTR_REG_ACCEL_CTRL_REG1)) and
                 (not LIS3DHTR_REG_ACCEL_CTRL_REG1_AODR_MASK) or
@@ -156,7 +157,7 @@ proc available*(sensor: static[Lis3dhtrDevice]): bool =
   return status.bool # TODO: double-check/test if this actually works
 
 proc getAcceleration*(sensor: static[Lis3dhtrDevice], x, y, z: var float32) =
-  ## TODO: docstring
+  ## Retrieves acceleration values (in Gs)
   # read raw sensor data
   sensor.bus.start()
   sensor.bus.send(sensor.address)
@@ -183,7 +184,7 @@ proc getAcceleration*(sensor: static[Lis3dhtrDevice], x, y, z: var float32) =
   z = float(az / accRange)
 
 proc getAccelerationX*(sensor: static[Lis3dhtrDevice]): float32 =
-  ## TODO: docstring
+  ## Retrieves x-axis acceleration value (in Gs)
   # read raw sensor data
   sensor.bus.start()
   sensor.bus.send(sensor.address)
@@ -201,7 +202,7 @@ proc getAccelerationX*(sensor: static[Lis3dhtrDevice]): float32 =
   return float(ax / accRange)
 
 proc getAccelerationY*(sensor: static[Lis3dhtrDevice]): float32 =
-  ## TODO: docstring
+  ## Retrieves y-axis acceleration value (in Gs)
   # read raw sensor data
   sensor.bus.start()
   sensor.bus.send(sensor.address)
@@ -219,7 +220,7 @@ proc getAccelerationY*(sensor: static[Lis3dhtrDevice]): float32 =
   return float(ay / accRange)
 
 proc getAccelerationZ*(sensor: static[Lis3dhtrDevice]): float32 =
-  ## TODO: docstring
+  ## Retrieves z-axis acceleration value (in Gs)
   # read raw sensor data
   sensor.bus.start()
   sensor.bus.send(sensor.address)
@@ -276,8 +277,8 @@ proc closeTemp*(sensor: static[Lis3dhtrDevice]) =
   delayMs(LIS3DHTR_CONVERSIONDELAY)
 
 proc readbitADC1*(sensor: static[Lis3dhtrDevice]): uint16 =
-  ## TODO: docstring
-  # read raw sensor data
+  ## Retrieves the ADC output from ADC1
+  # read raw data
   sensor.bus.start()
   sensor.bus.send(sensor.address)
   sensor.bus.send(LIS3DHTR_REG_OUT_ADC1_L or 0x80) # set MSb of subaddress to 1 to read multiple
@@ -294,8 +295,8 @@ proc readbitADC1*(sensor: static[Lis3dhtrDevice]): uint16 =
   return ((0 - adc1) + 32768) shr 6
 
 proc readbitADC2*(sensor: static[Lis3dhtrDevice]): uint16 =
-  ## TODO: docstring
-  # read raw sensor data
+  ## Retrieves the ADC output from ADC2
+  # read raw data
   sensor.bus.start()
   sensor.bus.send(sensor.address)
   sensor.bus.send(LIS3DHTR_REG_OUT_ADC2_L or 0x80) # set MSb of subaddress to 1 to read multiple
@@ -312,8 +313,8 @@ proc readbitADC2*(sensor: static[Lis3dhtrDevice]): uint16 =
   return ((0 - adc2) + 32768) shr 6
 
 proc readbitADC3*(sensor: static[Lis3dhtrDevice]): uint16 =
-  ## TODO: docstring
-  # read raw sensor data
+  ## Retrieves the ADC output from ADC3
+  # read raw data
   sensor.bus.start()
   sensor.bus.send(sensor.address)
   sensor.bus.send(LIS3DHTR_REG_OUT_ADC3_L or 0x80) # set MSb of subaddress to 1 to read multiple
@@ -330,7 +331,7 @@ proc readbitADC3*(sensor: static[Lis3dhtrDevice]): uint16 =
   return ((0 - adc3) + 32768) shr 6
 
 proc getTemperature*(sensor: static[Lis3dhtrDevice]): int16 =
-  ## TODO: docstring
+  ## Retrieves accelerometer temperature (in Celsius)
   # read raw sensor data
   sensor.bus.start()
   sensor.bus.send(sensor.address)
@@ -348,14 +349,15 @@ proc getTemperature*(sensor: static[Lis3dhtrDevice]): int16 =
   return (temp / 256) + 25
 
 proc isConnection*(sensor: static[Lis3dhtrDevice]): bool =
-  ## TODO: docstring
+  ## Verifies the device ID is correct (should always be 0x33)
   return (sensor.getDeviceID() == 0x33)
 
 proc getDeviceID*(sensor: static[Lis3dhtrDevice]): uint8 =
-  ## TODO: docstring
+  ## Retrieves the device ID (should always be 0x33)
   return sensor.bus.readRegister(sensor.address, LIS3DHTR_REG_ACCEL_WHO_AM_I)
 
 proc reset*(sensor: static[Lis3dhtrDevice]) =
   ## TODO: docstring
   ## doesn't seem to be implemented in the original arduino library
+  ## despite being in its header file
   discard
